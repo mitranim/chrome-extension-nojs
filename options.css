@@ -1,0 +1,36 @@
+body {
+  font-family: system-ui, sans-serif;
+  padding: 0.5rem;
+}
+
+table {
+  min-width: 600px;
+  max-width: 80vw;
+}
+
+.row-between-center {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.gaps-1-h > :not(:last-child) {margin-right: 1rem}
+
+.gaps-1-v > :not(:last-child) {margin-bottom: 1rem}
+
+.padding-1 {padding: 1rem;}
+
+.padding-0x5 {padding: 0.5rem;}
+
+th, td {
+  text-align: inherit;
+}
+
+.cell-space-1 {
+  border-spacing: 1rem;
+}
+
+.cell-space-0x5 {
+  border-spacing: 0.5rem;
+}

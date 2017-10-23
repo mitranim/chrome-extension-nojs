@@ -33,14 +33,19 @@ function onContextItemClick({menuItemId}) {
 }
 
 
+
 function onExtensionClick(tab) {
   const {url, id} = tab
 
-  if (chromeRegex.test(url)) return
-
-  const pattern = fileUrlRegex.test(url)
+  const pattern = chromeRegex.test(url)
+    ? null
+    : fileRegex.test(url)
     ? url
-    : getDomain(url) && `*://*.${getDomain(url)}/*`
+    : url.match(ipRegex)
+    ? `*://${url.match(ipRegex)[1]}/*`
+    : url.match(dnsRegex)
+    ? `*://*.${url.match(dnsRegex)[1]}/*`
+    : null
 
   if (!pattern) return
 
@@ -70,18 +75,13 @@ function upsertSetting(setting, {javascriptContentSettings}) {
   storage.set({javascriptContentSettings})
 }
 
-
-function getDomain(url) {
-  const match = url.match(domainExtractionRegex)
-  return match && match[1]
-}
-
-const fileUrlRegex = /^file:/
-
-const domainExtractionRegex = /^[A-z]+:\/\/\/?([^\s/?#:]+)/
-
 const chromeRegex = /^chrome:/
 
+const fileRegex = /^file:/
+
+const ipRegex = /^[A-z]+:\/\/\/?(\d+.\d+.\d+.\d+)[\s/?#:]/
+
+const dnsRegex = /^[A-z]+:\/\/\/?([^\s/?#:]+)/
 
 // self.log   = console.log.bind(console)
 // self.info  = console.info.bind(console)

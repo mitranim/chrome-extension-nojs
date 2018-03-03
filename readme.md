@@ -10,5 +10,5 @@ click "Load unpacked extension" → select unpacked folder.
 
 ## Usage
 
-Left-click the extension icon to toggle JavaScript for current domain.
+Left-click the extension icon or Ctrl+J (⌘J for Mac) to toggle JavaScript for current domain.
 Right-click for extension options or browser JavaScript preferences.

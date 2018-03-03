@@ -1,12 +1,12 @@
 {
-  "manifest_version": 3,
+  "manifest_version": 2,
   "icons": {
     "16": "icon16.png",
     "48": "icon48.png",
     "128": "icon128.png"
   },
   "name": "nojs",
-  "version": "0.0.1",
+  "version": "0.0.3",
   "permissions": [
     "tabs",
     "contentSettings",
@@ -24,5 +24,13 @@
   "background": {
     "scripts": ["background.js"],
     "persistent": false
+  },
+  "commands": {
+      "_execute_browser_action": {
+          "suggested_key": {
+              "default": "Ctrl+J"
+          },
+          "description": "Toggle JavaScript"
+      }
   }
 }

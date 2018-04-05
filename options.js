@@ -9,8 +9,18 @@ main()
 
 
 function main() {
-  chrome.storage.onChanged.addListener(onStorageChange)
   storage.get('javascriptContentSettings', onStorage)
+  chrome.storage.onChanged.addListener(onStorageChange)
+}
+
+function onStorage(stored) {
+  renderTo(document.body, ui(stored))
+}
+
+function onStorageChange(changes) {
+  if ('javascriptContentSettings' in changes) {
+    onStorage(mapVals(changes, getNewValue))
+  }
 }
 
 
@@ -20,29 +30,36 @@ function ui({javascriptContentSettings = []}) {
   if (!javascriptContentSettings || !javascriptContentSettings.length) {
     return (
       E('div', {className: 'padding-0x5 gaps-1-v', style: {textAlign: 'center'}},
-        E('div', {}, E('b', {}, 'No settings found')),
-        E('div', {}, 'Add websites by clicking extension button'))
+        E('h1', null, E('b', null, 'The NoJS rule list is empty')),
+        E('div', null, 'Whitelist or blacklist websites by clicking the extension button'))
     )
   }
 
   return (
-    E('div', {},
+    E('div', null,
       E('table', {className: 'cell-space-0x5'},
-        E('thead', {},
-          E('tr', {},
-            E('th', {}, 'Pattern'),
-            E('th', {}, 'Setting'),
-            E('th', {}, 'Toggle'))),
-        E('tbody', {},
+        E('thead', null,
+          E('tr', null,
+            E('td', null, E('h1', null, 'Pattern')),
+            E('td', null, E('h1', null, 'Setting')),
+            E('td', null, E('h1', null, 'Toggle')))),
+        E('tbody', null,
           javascriptContentSettings.map(setting => (
-            E('tr', {},
-              E('td', {}, E('code', {}, setting.primaryPattern)),
-              E('td', {}, setting.setting),
-              E('td', {},
-                E('button', {type: 'button', onclick: toggleSetting.bind(null, setting)},
+            E('tr', null,
+              E('td', null, E('code', null, setting.primaryPattern)),
+              E('td', null, setting.setting),
+              E('td', null,
+                E('button',
+                  {
+                    type: 'button',
+                    className: 'btn',
+                    onclick: toggleSetting.bind(null, setting),
+                  },
                   'toggle'))))))),
       E('div', {className: 'padding-0x5'},
-        E('button', {type: 'button', onclick: removeAllSettings}, 'Remove All')))
+        E('button',
+          {type: 'button', className: 'btn', onclick: removeAllSettings},
+          'Remove All')))
   )
 }
 
@@ -85,17 +102,6 @@ function toggleSetting({primaryPattern, setting}) {
 
 
 
-function onStorageChange(changes) {
-  if ('javascriptContentSettings' in changes) {
-    onStorage(mapVals(getNewValue, changes))
-  }
-}
-
-function onStorage(stored) {
-  renderTo(document.body, ui(stored))
-}
-
-
 
 function renderTo(node, child) {
   while (node.firstChild) node.firstChild.remove()
@@ -112,7 +118,7 @@ function createElement(type, props) {
   if (!isString(type) && !isFunction(type)) {
     throw TypeError(`Element type must be a string or a function, got: ${type}`)
   }
-  if (props != null) validate(isDict, props)
+  if (props != null) validate(props, isDict)
   const children = toFlatNodeList(slice(arguments, 2))
   if (isFunction(type)) return type(patch(props, {children}))
   const elem = document.createElement(type)
@@ -120,15 +126,6 @@ function createElement(type, props) {
   for (let i = -1; ++i < children.length;) elem.appendChild(children[i])
   return elem
 }
-
-function toNodes(value) {
-  if (value == null) return []
-  validate(isString, value)
-  evalContainer.innerHTML = value
-  return spliceChildNodes(evalContainer)
-}
-
-const evalContainer = createElement('div')
 
 function toFlatNodeList(list) {
   return list.reduce(concatNodes, [])
@@ -183,12 +180,6 @@ function toNode(value) {
     : new Comment(value)
 }
 
-function spliceChildNodes(node) {
-  const out = []
-  while (node.firstChild) out.push(node.removeChild(node.firstChild))
-  return out
-}
-
 
 
 function isString(value) {
@@ -223,7 +214,7 @@ function isInstance(value, Class) {
   return isComplex(value) && value instanceof Class
 }
 
-function validate(test, value) {
+function validate(value, test) {
   if (!test(value)) throw Error(`Expected ${show(value)} to satisfy test ${show(test)}`)
 }
 
@@ -231,17 +222,17 @@ function slice() {
   return Array.prototype.slice.call.apply(Array.prototype.slice, arguments)
 }
 
-function mapVals(fun, value) {
-  validate(isFunction, fun)
+function mapVals(value, fun) {
+  validate(fun, isFunction)
   const out = {}
   for (const key in value) out[key] = fun(value[key], key)
   return out
 }
 
 
-// self.log   = console.log.bind(console)
-// self.info  = console.info.bind(console)
-// self.debug = console.debug.bind(console)
-// self.warn  = console.warn.bind(console)
-// self.error = console.error.bind(console)
-// self.clear = console.clear.bind(console)
+self.log   = console.log.bind(console)
+self.info  = console.info.bind(console)
+self.debug = console.debug.bind(console)
+self.warn  = console.warn.bind(console)
+self.error = console.error.bind(console)
+self.clear = console.clear.bind(console)

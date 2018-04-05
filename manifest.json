@@ -1,11 +1,11 @@
 {
-  "manifest_version": 2,
+  "manifest_version": 3,
   "icons": {
     "16": "icon16.png",
     "48": "icon48.png",
     "128": "icon128.png"
   },
-  "name": "nojs",
+  "name": "NoJS",
   "version": "0.0.3",
   "permissions": [
     "tabs",
@@ -13,11 +13,11 @@
     "contextMenus",
     "storage"
   ],
-  // "options_page": "options.html",
-  "options_ui": {
-    "page": "options.html",
-    "chrome_style": true
-  },
+  "options_page": "options.html",
+  // "options_ui": {
+  //   "page": "options.html",
+  //   "chrome_style": true
+  // },
   "browser_action": {
     "default_title": "Toggle JavaScript"
   },
@@ -26,11 +26,11 @@
     "persistent": false
   },
   "commands": {
-      "_execute_browser_action": {
-          "suggested_key": {
-              "default": "Ctrl+J"
-          },
-          "description": "Toggle JavaScript"
-      }
+    "_execute_browser_action": {
+      "suggested_key": {
+        "default": "Ctrl+J"
+      },
+      "description": "Toggle JavaScript"
+    }
   }
 }

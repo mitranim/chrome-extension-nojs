@@ -1,5 +1,6 @@
 body {
   font-family: system-ui, sans-serif;
+  font-size: 18px;
   padding: 0.5rem;
 }
 
@@ -33,4 +34,9 @@ th, td {
 
 .cell-space-0x5 {
   border-spacing: 0.5rem;
+}
+
+.btn {
+  cursor: pointer;
+  padding: 0.3rem 0.6rem;
 }

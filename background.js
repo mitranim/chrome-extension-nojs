@@ -59,7 +59,6 @@ function onExtensionClick(tab) {
   })
 }
 
-
 function upsertSetting(setting, {javascriptContentSettings}) {
   if (!Array.isArray(javascriptContentSettings)) {
     javascriptContentSettings = []
@@ -83,9 +82,11 @@ const ipRegex = /^[A-z]+:\/\/\/?(\d+.\d+.\d+.\d+)[\s/?#:]/
 
 const dnsRegex = /^[A-z]+:\/\/\/?([^\s/?#:]+)/
 
-// self.log   = console.log.bind(console)
-// self.info  = console.info.bind(console)
-// self.debug = console.debug.bind(console)
-// self.warn  = console.warn.bind(console)
-// self.error = console.error.bind(console)
-// self.clear = console.clear.bind(console)
+
+
+self.log   = console.log.bind(console)
+self.info  = console.info.bind(console)
+self.debug = console.debug.bind(console)
+self.warn  = console.warn.bind(console)
+self.error = console.error.bind(console)
+self.clear = console.clear.bind(console)

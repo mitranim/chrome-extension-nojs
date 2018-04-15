@@ -1,33 +1,30 @@
 'use strict'
 
-const storage = chrome.storage.local
+// Storage for per-domain JS configs.
+const CS = chrome.contentSettings.javascript
+const CS_ENUM = chrome.contentSettings.JavascriptContentSetting
 
+// We cache known pattens and their configs because we can't query
+// `chrome.contentSettings.javascript` for ALL of them.
+const STORAGE = chrome.storage.local
+const STORAGE_KEY = 'javascriptContentSettings'
 
+/**
+ * Init
+ */
 
-main()
+STORAGE.get(STORAGE_KEY, onStorage)
 
+chrome.storage.onChanged.addListener(onStorageChange)
 
+/**
+ * UI
+ */
 
-function main() {
-  storage.get('javascriptContentSettings', onStorage)
-  chrome.storage.onChanged.addListener(onStorageChange)
-}
+function ui({[STORAGE_KEY]: configs}) {
+  if (!Array.isArray(configs)) configs = []
 
-function onStorage(stored) {
-  renderTo(document.body, ui(stored))
-}
-
-function onStorageChange(changes) {
-  if ('javascriptContentSettings' in changes) {
-    onStorage(mapVals(changes, getNewValue))
-  }
-}
-
-
-
-
-function ui({javascriptContentSettings = []}) {
-  if (!javascriptContentSettings || !javascriptContentSettings.length) {
+  if (!configs.length) {
     return (
       E('div', {className: 'padding-0x5 gaps-1-v', style: {textAlign: 'center'}},
         E('h1', null, E('b', null, 'The NoJS rule list is empty')),
@@ -43,19 +40,18 @@ function ui({javascriptContentSettings = []}) {
             E('td', null, E('h1', null, 'Pattern')),
             E('td', null, E('h1', null, 'Setting')),
             E('td', null, E('h1', null, 'Toggle')))),
-        E('tbody', null,
-          javascriptContentSettings.map(setting => (
-            E('tr', null,
-              E('td', null, E('code', null, setting.primaryPattern)),
-              E('td', null, setting.setting),
-              E('td', null,
-                E('button',
-                  {
-                    type: 'button',
-                    className: 'btn',
-                    onclick: toggleSetting.bind(null, setting),
-                  },
-                  'toggle'))))))),
+        E('tbody', null, configs.map(config => (
+          E('tr', null,
+            E('td', null, E('code', null, config.primaryPattern)),
+            E('td', null, config.setting),
+            E('td', null,
+              E('button',
+                {
+                  type: 'button',
+                  className: 'btn',
+                  onclick: toggleConfig.bind(null, config),
+                },
+                'toggle'))))))),
       E('div', {className: 'padding-0x5'},
         E('button',
           {type: 'button', className: 'btn', onclick: removeAllSettings},
@@ -63,54 +59,56 @@ function ui({javascriptContentSettings = []}) {
   )
 }
 
+/**
+ * Logic
+ */
 
+function onStorage(stored) {
+  renderTo(document.body, ui(stored))
+}
 
+function onStorageChange(changes) {
+  if (STORAGE_KEY in changes) onStorage(mapVals(changes, getNewValue))
+}
 
+function getNewValue({newValue}) {return newValue}
 
 function removeAllSettings() {
-  chrome.contentSettings.javascript.clear({}, () => {
-    storage.remove('javascriptContentSettings')
-  })
+  CS.clear()
+  STORAGE.remove(STORAGE_KEY)
 }
 
-function toggleSetting({primaryPattern, setting}) {
-  const {BLOCK, ALLOW} = chrome.contentSettings.JavascriptContentSetting
-
-  const newSetting = setting === BLOCK ? ALLOW : BLOCK
-
-  chrome.contentSettings.javascript.set({primaryPattern, setting: newSetting}, () => {
-    storage.get('javascriptContentSettings', ({javascriptContentSettings}) => {
-      if (!Array.isArray(javascriptContentSettings)) {
-        javascriptContentSettings = []
-      }
-
-      const entry = javascriptContentSettings.find(setting => (
-        setting.primaryPattern === primaryPattern
-      ))
-
-      if (entry) {
-        entry.setting = newSetting
-      }
-      else {
-        javascriptContentSettings.push({primaryPattern, setting})
-      }
-
-      storage.set({javascriptContentSettings})
-    })
-  })
+async function toggleConfig(oldConfig) {
+  const isEnabled = oldConfig.setting === CS_ENUM.ALLOW
+  const newConfig = {
+    primaryPattern: oldConfig.primaryPattern,
+    setting: isEnabled ? CS_ENUM.BLOCK : CS_ENUM.ALLOW,
+  }
+  await invoke(CS.set, newConfig)
+  await cacheConfig(newConfig)
 }
 
+async function cacheConfig(config) {
+  let {[STORAGE_KEY]: configs} = await invoke(STORAGE.get, STORAGE_KEY)
+  if (!Array.isArray(configs)) configs = []
 
+  const index = configs.findIndex(({primaryPattern}) => (
+    primaryPattern === config.primaryPattern
+  ))
+  if (index === -1) configs.push(config)
+  else configs[index] = config
 
+  await invoke(STORAGE.set, {[STORAGE_KEY]: configs})
+}
+
+/**
+ * Utils
+ */
 
 function renderTo(node, child) {
   while (node.firstChild) node.firstChild.remove()
   if (child) node.appendChild(child)
 }
-
-function getNewValue({newValue}) {return newValue}
-
-
 
 function E() {return createElement(...arguments)}
 
@@ -164,14 +162,6 @@ function isBooleanAttr(value) {
   )
 }
 
-const booleanAttrs = [
-  'aria-current',
-  'aria-pressed',
-  'autofocus',
-  'checked',
-  'disabled',
-]
-
 function toNode(value) {
   return isInstance(value, Node)
     ? value
@@ -179,8 +169,6 @@ function toNode(value) {
     ? new Text(value)
     : new Comment(value)
 }
-
-
 
 function isString(value) {
   return typeof value === 'string'
@@ -218,6 +206,16 @@ function validate(value, test) {
   if (!test(value)) throw Error(`Expected ${show(value)} to satisfy test ${show(test)}`)
 }
 
+function show(value) {
+  return (
+    isFunction(value) && value.name
+    ? value.name
+    : isArray(value) || isDict(value)
+    ? JSON.stringify(value)
+    : String(value)
+  )
+}
+
 function slice() {
   return Array.prototype.slice.call.apply(Array.prototype.slice, arguments)
 }
@@ -229,6 +227,19 @@ function mapVals(value, fun) {
   return out
 }
 
+function patch() {
+  const out = Object.assign({}, ...arguments)
+  for (const key in out) if (out[key] == null) delete out[key]
+  return out
+}
+
+function invoke(fun, ...args) {
+  return new Promise(resolve => {fun(...args, resolve)})
+}
+
+/**
+ * REPL
+ */
 
 self.log   = console.log.bind(console)
 self.info  = console.info.bind(console)

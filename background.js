@@ -1,28 +1,33 @@
 'use strict'
 
-const storage = chrome.storage.local
+// Storage for per-domain JS configs.
+const CS = chrome.contentSettings.javascript
+const CS_ENUM = chrome.contentSettings.JavascriptContentSetting
 
+// We cache known pattens and their configs because we can't query
+// `chrome.contentSettings.javascript` for ALL of them.
+const STORAGE = chrome.storage.local
+const STORAGE_KEY = 'javascriptContentSettings'
 
+/**
+ * Init
+ */
 
-main()
-
-
-
-function main() {
-  chrome.contextMenus.removeAll(() => {
-    chrome.contextMenus.create({
-      id: 'goto-js-settings',
-      title: 'Chrome JavaScript Settings',
-      contexts: ['browser_action'],
-    })
+chrome.contextMenus.removeAll(() => {
+  chrome.contextMenus.create({
+    id: 'goto-js-settings',
+    title: 'Chrome JavaScript Settings',
+    contexts: ['browser_action'],
   })
+})
 
-  chrome.contextMenus.onClicked.addListener(onContextItemClick)
+chrome.contextMenus.onClicked.addListener(onContextItemClick)
 
-  chrome.browserAction.onClicked.addListener(onExtensionClick)
-}
+chrome.browserAction.onClicked.addListener(onExtensionClick)
 
-
+/**
+ * Logic
+ */
 
 function onContextItemClick({menuItemId}) {
   if (menuItemId === 'goto-js-settings') {
@@ -32,9 +37,7 @@ function onContextItemClick({menuItemId}) {
   }
 }
 
-
-
-function onExtensionClick(tab) {
+async function onExtensionClick(tab) {
   const {url, id} = tab
 
   const pattern = chromeRegex.test(url)
@@ -49,40 +52,48 @@ function onExtensionClick(tab) {
 
   if (!pattern) return
 
-  chrome.contentSettings.javascript.get({primaryUrl: url}, ({setting: value}) => {
-    const {BLOCK, ALLOW} = chrome.contentSettings.JavascriptContentSetting
-    const setting = {primaryPattern: pattern, setting: value === BLOCK ? ALLOW : BLOCK}
-    chrome.contentSettings.javascript.set(setting, () => {
-      storage.get('javascriptContentSettings', upsertSetting.bind(null, setting))
-      chrome.tabs.reload(id)
-    })
-  })
+  const config = await toggleConfig(url, pattern)
+  chrome.tabs.reload(id)
+  cacheConfig(config)
 }
 
-function upsertSetting(setting, {javascriptContentSettings}) {
-  if (!Array.isArray(javascriptContentSettings)) {
-    javascriptContentSettings = []
-  }
+async function toggleConfig(url, pattern) {
+  const config = await invoke(CS.get, {primaryUrl: url})
+  const isEnabled = config.setting === CS_ENUM.ALLOW
+  const newConfig = {primaryPattern: pattern, setting: isEnabled ? CS_ENUM.BLOCK : CS_ENUM.ALLOW}
+  await invoke(CS.set, newConfig)
+  return newConfig
+}
 
-  const index = javascriptContentSettings.findIndex(({primaryPattern}) => (
-    primaryPattern === setting.primaryPattern
+async function cacheConfig(config) {
+  let {[STORAGE_KEY]: configs} = await invoke(STORAGE.get, STORAGE_KEY)
+  if (!Array.isArray(configs)) configs = []
+
+  const index = configs.findIndex(({primaryPattern}) => (
+    primaryPattern === config.primaryPattern
   ))
+  if (index === -1) configs.push(config)
+  else configs[index] = config
 
-  if (index !== -1) javascriptContentSettings[index] = setting
-  else javascriptContentSettings.push(setting)
-
-  storage.set({javascriptContentSettings})
+  await invoke(STORAGE.set, {[STORAGE_KEY]: configs})
 }
+
+/**
+ * Utils
+ */
 
 const chromeRegex = /^chrome:/
-
 const fileRegex = /^file:/
-
 const ipRegex = /^[A-z]+:\/\/\/?(\d+.\d+.\d+.\d+)[\s/?#:]/
-
 const dnsRegex = /^[A-z]+:\/\/\/?([^\s/?#:]+)/
 
+function invoke(fun, ...args) {
+  return new Promise(resolve => {fun(...args, resolve)})
+}
 
+/**
+ * REPL
+ */
 
 self.log   = console.log.bind(console)
 self.info  = console.info.bind(console)

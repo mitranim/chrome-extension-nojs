@@ -1,14 +1,20 @@
 ## Overview
 
-Chrome extension for toggling JavaScript per-domain. For people who prefer to
-keep it disabled by default.
+Chrome extension for toggling JavaScript per URL domain. For people who prefer it disabled by default.
 
 ## Installation
 
-Download and unpack the repo, or clone it using git. Go to chrome://extensions,
-click "Load unpacked extension" → select unpacked folder.
+Clone the repo:
+
+    git clone https://github.com/mitranim/chrome-extension-nojs.git
+
+Go to the [`chrome://extensions`](chrome://extensions) URL. Click "Load unpacked extension" → select the repo folder.
 
 ## Usage
 
-Left-click the extension icon or Ctrl+J (⌘J for Mac) to toggle JavaScript for current domain.
-Right-click for extension options or browser JavaScript preferences.
+Left-click the extension icon or press Ctrl+J (⌘J on MacOS) to toggle JavaScript for the current domain.
+
+Right-click the extension icon to open a menu with:
+
+  * Chrome JavaScript options
+  * extension options

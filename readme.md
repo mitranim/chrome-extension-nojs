@@ -1,6 +1,6 @@
 ## Overview
 
-Chrome extension for toggling JavaScript per URL domain. For people who prefer it disabled by default.
+Chrome extension for easily enabling/disabling JavaScript for individual domains.
 
 ## Installation
 
@@ -16,5 +16,5 @@ Left-click the extension icon or press Ctrl+J (⌘J on MacOS) to toggle JavaScri
 
 Right-click the extension icon to open a menu with:
 
-  * Chrome JavaScript options
-  * extension options
+* Chrome JavaScript options
+* extension options

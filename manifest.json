@@ -1,36 +1,36 @@
 {
-  "manifest_version": 3,
-  "icons": {
-    "16": "icon16.png",
-    "48": "icon48.png",
-    "128": "icon128.png"
-  },
-  "name": "NoJS",
-  "version": "0.0.4",
-  "permissions": [
-    "tabs",
-    "contentSettings",
-    "contextMenus",
-    "storage"
-  ],
-  "options_page": "options.html",
-  // "options_ui": {
-  //   "page": "options.html",
-  //   "chrome_style": true
-  // },
-  "browser_action": {
-    "default_title": "Toggle JavaScript"
-  },
-  "background": {
-    "scripts": ["background.js"],
-    "persistent": false
-  },
-  "commands": {
-    "_execute_browser_action": {
-      "suggested_key": {
-        "default": "Ctrl+J"
-      },
-      "description": "Toggle JavaScript"
+    "manifest_version": 3,
+    "icons": {
+        "16": "icon16.png",
+        "48": "icon48.png",
+        "128": "icon128.png"
+    },
+    "name": "NoJS",
+    "version": "0.0.4",
+    "permissions": [
+        "tabs",
+        "contentSettings",
+        "contextMenus",
+        "storage"
+    ],
+    "options_page": "options.html",
+    // "options_ui": {
+    //   "page": "options.html",
+    //   "chrome_style": true
+    // },
+    "browser_action": {
+        "default_title": "Toggle JavaScript"
+    },
+    "background": {
+        "scripts": ["background.js"],
+        "persistent": false
+    },
+    "commands": {
+        "_execute_browser_action": {
+            "suggested_key": {
+                "default": "Ctrl+J"
+            },
+            "description": "Toggle JavaScript"
+        }
     }
-  }
 }

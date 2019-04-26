@@ -1,19 +1,19 @@
 body {
-  font-family: system-ui, sans-serif;
-  font-size: 18px;
-  padding: 0.5rem;
+    font-family: system-ui, sans-serif;
+    font-size: 18px;
+    padding: 0.5rem;
 }
 
 table {
-  min-width: 600px;
-  max-width: 80vw;
+    min-width: 600px;
+    max-width: 80vw;
 }
 
 .row-between-center {
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  align-items: center;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
 }
 
 .gaps-1-h > :not(:last-child) {margin-right: 1rem}
@@ -25,18 +25,18 @@ table {
 .padding-0x5 {padding: 0.5rem;}
 
 th, td {
-  text-align: inherit;
+    text-align: inherit;
 }
 
 .cell-space-1 {
-  border-spacing: 1rem;
+    border-spacing: 1rem;
 }
 
 .cell-space-0x5 {
-  border-spacing: 0.5rem;
+    border-spacing: 0.5rem;
 }
 
 .btn {
-  cursor: pointer;
-  padding: 0.3rem 0.6rem;
+    cursor: pointer;
+    padding: 0.3rem 0.6rem;
 }

@@ -21,7 +21,7 @@ chrome.storage.onChanged.addListener(onStorageChange)
  * UI
  */
 
-function ui({[STORAGE_KEY]: configs}) {
+function gui({[STORAGE_KEY]: configs}) {
     if (!Array.isArray(configs)) configs = []
 
     if (!configs.length) {
@@ -64,7 +64,7 @@ function ui({[STORAGE_KEY]: configs}) {
  */
 
 function onStorage(stored) {
-    renderTo(document.body, ui(stored))
+    renderTo(document.body, gui(stored))
 }
 
 function onStorageChange(changes) {

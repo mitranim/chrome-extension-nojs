@@ -40,15 +40,13 @@ function onContextItemClick({menuItemId}) {
 async function onExtensionClick(tab) {
     const {url, id} = tab
 
-    const pattern = chromeRegex.test(url)
-        ? null
-        : fileRegex.test(url)
-        ? url
-        : url.match(ipRegex)
-        ? `*://${url.match(ipRegex)[1]}/*`
-        : url.match(dnsRegex)
-        ? `*://*.${url.match(dnsRegex)[1]}/*`
-        : null
+    if (chromeRegex.test(url)) return
+
+    let pattern
+
+    if (fileRegex.test(url)) pattern = url
+    else if (url.match(ipRegex)) pattern = `*://${url.match(ipRegex)[1]}/*`
+    else if (url.match(dnsRegex)) pattern = `*://*.${url.match(dnsRegex)[1]}/*`
 
     if (!pattern) return
 

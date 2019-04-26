@@ -28,9 +28,8 @@
     "commands": {
         "_execute_browser_action": {
             "suggested_key": {
-                "default": "Ctrl+J"
-            },
-            "description": "Toggle JavaScript"
+                "default": "Alt+S"
+            }
         }
     }
 }

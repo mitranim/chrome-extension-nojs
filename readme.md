@@ -12,9 +12,9 @@ Go to the [`chrome://extensions`](chrome://extensions) URL. Click "Load unpacked
 
 ## Usage
 
-Left-click the extension icon or press Ctrl+J (⌘J on MacOS) to toggle JavaScript for the current domain.
+Left-click the extension icon or press Alt+S to toggle JavaScript for the current domain.
 
 Right-click the extension icon to open a menu with:
 
-* Chrome JavaScript options
+* Chrome's built-in JS settings
 * extension options

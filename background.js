@@ -53,20 +53,23 @@ async function onExtensionClick(tab) {
     if (!pattern) return
 
     const config = await toggleConfig(url, pattern)
-    chrome.tabs.reload(id)
-    cacheConfig(config)
+
+    await Promise.all([
+        new Promise(done => chrome.tabs.reload(id, done)),
+        cacheConfig(config),
+    ])
 }
 
 async function toggleConfig(url, pattern) {
-    const config = await invoke(CS.get, {primaryUrl: url})
+    const config = await new Promise(done => CS.get({primaryUrl: url}, done))
     const isEnabled = config.setting === CS_ENUM.ALLOW
     const newConfig = {primaryPattern: pattern, setting: isEnabled ? CS_ENUM.BLOCK : CS_ENUM.ALLOW}
-    await invoke(CS.set, newConfig)
+    await new Promise(done => CS.set(newConfig, done))
     return newConfig
 }
 
 async function cacheConfig(config) {
-    let {[STORAGE_KEY]: configs} = await invoke(STORAGE.get, STORAGE_KEY)
+    let {[STORAGE_KEY]: configs} = await new Promise(done => STORAGE.get(STORAGE_KEY, done))
     if (!Array.isArray(configs)) configs = []
 
     const index = configs.findIndex(({primaryPattern}) => (
@@ -75,7 +78,7 @@ async function cacheConfig(config) {
     if (index === -1) configs.push(config)
     else configs[index] = config
 
-    await invoke(STORAGE.set, {[STORAGE_KEY]: configs})
+    await new Promise(done => STORAGE.set({[STORAGE_KEY]: configs}, done))
 }
 
 /**
@@ -86,10 +89,6 @@ const chromeRegex = /^chrome:/
 const fileRegex = /^file:/
 const ipRegex = /^[A-z]+:\/\/\/?(\d+.\d+.\d+.\d+)[\s/?#:]/
 const dnsRegex = /^[A-z]+:\/\/\/?([^\s/?#:]+)/
-
-function invoke(fun, ...args) {
-    return new Promise(resolve => {fun(...args, resolve)})
-}
 
 /**
  * REPL

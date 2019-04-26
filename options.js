@@ -84,12 +84,12 @@ async function toggleConfig(oldConfig) {
         primaryPattern: oldConfig.primaryPattern,
         setting: isEnabled ? CS_ENUM.BLOCK : CS_ENUM.ALLOW,
     }
-    await invoke(CS.set, newConfig)
+    await new Promise(done => CS.set(newConfig, done))
     await cacheConfig(newConfig)
 }
 
 async function cacheConfig(config) {
-    let {[STORAGE_KEY]: configs} = await invoke(STORAGE.get, STORAGE_KEY)
+    let {[STORAGE_KEY]: configs} = await new Promise(done => STORAGE.get(STORAGE_KEY, done))
     if (!Array.isArray(configs)) configs = []
 
     const index = configs.findIndex(({primaryPattern}) => (
@@ -98,7 +98,7 @@ async function cacheConfig(config) {
     if (index === -1) configs.push(config)
     else configs[index] = config
 
-    await invoke(STORAGE.set, {[STORAGE_KEY]: configs})
+    await new Promise(done => STORAGE.set({[STORAGE_KEY]: configs}, done))
 }
 
 /**
@@ -231,10 +231,6 @@ function patch() {
     const out = Object.assign({}, ...arguments)
     for (const key in out) if (out[key] == null) delete out[key]
     return out
-}
-
-function invoke(fun, ...args) {
-    return new Promise(resolve => {fun(...args, resolve)})
 }
 
 /**

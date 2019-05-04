@@ -19,7 +19,7 @@
     //   "chrome_style": true
     // },
     "browser_action": {
-        "default_title": "Toggle JavaScript"
+        "default_title": "Toggle JavaScript (Alt+S)"
     },
     "background": {
         "scripts": ["background.js"],

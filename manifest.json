@@ -1,35 +1,17 @@
 {
-    "manifest_version": 2,
-    "icons": {
-        "16": "icon16.png",
-        "48": "icon48.png",
-        "128": "icon128.png"
-    },
-    "name": "NoJS",
-    "version": "0.0.4",
-    "permissions": [
-        "tabs",
-        "contentSettings",
-        "contextMenus",
-        "storage"
-    ],
-    "options_page": "options.html",
-    // "options_ui": {
-    //   "page": "options.html",
-    //   "chrome_style": true
-    // },
-    "browser_action": {
-        "default_title": "Toggle JavaScript (Alt+S)"
-    },
-    "background": {
-        "scripts": ["background.js"],
-        "persistent": false
-    },
-    "commands": {
-        "_execute_browser_action": {
-            "suggested_key": {
-                "default": "Alt+S"
-            }
-        }
+  "name": "NoJS",
+  "description": "Easily toggle JS for any domain.",
+  "version": "0.0.5",
+  "manifest_version": 3,
+  "permissions": ["tabs", "contentSettings", "contextMenus", "storage"],
+  "background": {"service_worker": "background.mjs", "type": "module"},
+  "options_page": "options.html",
+  "icons": {"16": "icon16.png", "48": "icon48.png", "128": "icon128.png"},
+  "action": {"default_title": "toggle JS for this domain"},
+  "commands": {
+    "nojs_toggle": {
+      "suggested_key": {"default": "Alt+Shift+J"},
+      "description": "toggle JS for this domain"
     }
+  }
 }

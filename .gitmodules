@@ -1,0 +1,4 @@
+[submodule "js"]
+  path = js
+  url = https://github.com/mitranim/js.git
+  shallow = true

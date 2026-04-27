@@ -42,11 +42,11 @@ async function onExtensionClick(tab) {
   if (!pattern) return
 
   await Promise.all([
-    chrome.tabs.reload(id),
     toggleConfig({
       primaryPattern: pattern,
       ...await CS.get({primaryUrl: url})
     }),
+    chrome.tabs.reload(id),
   ])
 }
 

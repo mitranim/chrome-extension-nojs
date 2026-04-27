@@ -32,9 +32,8 @@ export async function toggleConfig({primaryPattern, setting}) {
 }
 
 async function storeConfigUpdate(conf) {
-  const stor = await STORAGE.get(STORAGE_KEY)
-
-  const confs = onlyArr(stor?.[STORAGE_KEY]) ?? []
+  const data = await STORAGE.get()
+  const confs = onlyArr(data?.[STORAGE_KEY]) ?? []
 
   const ind = confs.findIndex(val => (
     val.primaryPattern === conf.primaryPattern
